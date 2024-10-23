@@ -3,7 +3,7 @@ import { products } from "@wix/stores";
 import Image from "next/image";
 import Link from "next/link";
 import DOMPurify from "isomorphic-dompurify";
-// import Pagination from "./Pagination";
+import Pagination from "./Pagination";
 
 const PRODUCT_PER_PAGE = 8;
 
@@ -22,10 +22,7 @@ const ProductList = async ({
     .queryProducts()
     .startsWith("name", searchParams?.name || "")
     .eq("collectionIds", categoryId)
-    .hasSome(
-      "productType",
-      searchParams?.type ? [searchParams.type] : ["physical", "digital"]
-    )
+    .hasSome("productType", [searchParams?.type || "physical", "digital"])
     .gt("priceData.price", searchParams?.min || 0)
     .lt("priceData.price", searchParams?.max || 999999)
     .limit(limit || PRODUCT_PER_PAGE)
@@ -40,14 +37,17 @@ const ProductList = async ({
     const [sortType, sortBy] = searchParams.sort.split(" ");
 
     if (sortType === "asc") {
+      // console.log(sortBy);
       productQuery.ascending(sortBy);
     }
     if (sortType === "desc") {
+      // console.log(sortBy);
       productQuery.descending(sortBy);
     }
   }
 
   const res = await productQuery.find();
+  // console.log(res);
 
   return (
     <div className="mt-12 flex gap-x-8 gap-y-16 justify-between flex-wrap">
@@ -77,7 +77,7 @@ const ProductList = async ({
           </div>
           <div className="flex justify-between">
             <span className="font-medium">{product.name}</span>
-            <span className="font-semibold">${product.price?.price}</span>
+            <span className="font-semibold">${product.priceData?.price}</span>
           </div>
           {product.additionalInfoSections && (
             <div
@@ -91,18 +91,18 @@ const ProductList = async ({
               }}
             ></div>
           )}
-          <button className="rounded-2xl ring-1 ring-lama text-lama w-max py-2 px-4 text-xs hover:bg-lama hover:text-white">
+          <button className="rounded-2xl ring-1 ring-raza text-raza w-max py-2 px-4 text-xs hover:bg-raza hover:text-white">
             Add to Cart
           </button>
         </Link>
       ))}
-      {/* {searchParams?.cat || searchParams?.name ? (
+      {searchParams?.cat || searchParams?.name ? (
         <Pagination
           currentPage={res.currentPage || 0}
           hasPrev={res.hasPrev()}
           hasNext={res.hasNext()}
         />
-      ) : null} */}
+      ) : null}
     </div>
   );
 };
